@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b2a6f"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><title>वय-सखा</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:700 22px system-ui,sans-serif;background:#0b2a6f;color:#fff;text-align:center}
+section{display:none;min-height:100vh;padding:16px;flex-direction:column;gap:14px}section.on{display:flex}
+button,a.b,select,input{font:inherit;border-radius:20px;border:4px solid #fff;padding:16px;min-height:76px;color:#0b2a6f;background:#fff;text-decoration:none;display:block;width:100%}
+.y{background:#ffd400}.r{background:#c40000;color:#fff}.g{background:#0a7a2f;color:#fff}
+h1{margin:0;font-size:32px}#clk{font-size:48px}.row{display:flex;gap:10px}.row>*{flex:1}
+.ev{background:#123a99;border-radius:12px;padding:10px;text-align:left;font-size:18px}.ev a{color:#ffd400}
+</style></head><body>
+<section id="home" class="on"><h1>🙏 <span data-i="app"></span></h1><div id="clk"></div>
+<button class="y" id="mic" style="min-height:140px;font-size:34px">🎤 <span data-i="speak"></span></button><div id="st" style="min-height:60px"></div>
+<div class="row"><button onclick="go('meds')">💊 <span data-i="meds"></span></button><button onclick="water()">💧 <span data-i="water"></span></button></div>
+<button class="r" style="min-height:130px;font-size:34px" onclick="sos()">🆘 SOS</button><button onclick="go('set')">⚙️ <span data-i="set"></span></button></section>
+<section id="meds"><h1>💊 <span data-i="meds"></span></h1><div id="ml"></div><button class="y" onclick="go('home')">⬅ <span data-i="back"></span></button></section>
+<section id="alarm"><h1 id="aq" style="font-size:36px"></h1><button class="g" style="min-height:130px" onclick="done(true)" data-i="taken"></button><button onclick="done(false)" data-i="later"></button><button class="y" onclick="lis2()">🎤 <span data-i="speak"></span></button></section>
+<section id="sos"><h1>🆘</h1><div id="sl"></div><a class="b g" id="wa" target="_blank" rel="noopener">💬 <span data-i="wa"></span></a><a class="b y" id="sms">✉️ <span data-i="sms"></span></a><a class="b r" href="tel:108">🚑 <span data-i="amb"></span></a><button onclick="go('home')" data-i="cancel"></button></section>
+<section id="set"><h1>⚙️ <span data-i="set"></span></h1>
+<select id="f_lang"><option value="hi">हिंदी</option><option value="bu">बुंदेली</option><option value="en">English</option></select>
+<input id="f_n" data-p="name"><input id="f_p" type="tel" data-p="phone"><input id="f_db" type="url" data-p="db">
+<div class="row"><input id="f_t" type="time"><input id="f_m" data-p="medname"></div>
+<button class="g" onclick="addMed()">➕ <span data-i="add"></span></button><div id="sl2"></div>
+<button onclick="share()">📲 <span data-i="share"></span></button><button class="y" onclick="saveSet()" data-i="save"></button></section>
+<section id="care"><h1 data-i="careh"></h1><div id="cl"></div></section>
+<script>
+const T={
+hi:{app:'वय-सखा',speak:'बोलिए',meds:'दवा',water:'पानी पिया',set:'सेटिंग',back:'वापस',listening:'सुन रहा हूँ…',hello:'नमस्ते {n} जी! मैं वय-सखा हूँ। बोलिए, क्या मदद करूँ?',medtime:'{n} जी, दवा का समय हो गया: {m}। कृपया दवा ले लीजिए।',taken:'✅ ले ली',later:'⏰ बाद में',waterTime:'थोड़ा पानी पी लीजिए।',ok:'बहुत अच्छा!',unk:'समझ नहीं आया, फिर से बोलिए।',nosr:'इस फोन पर आवाज़ पहचान नहीं चलती। Chrome इस्तेमाल करें।',now:'अभी समय है {h}',nomed:'कोई दवा नहीं जुड़ी है।',sosw:'घबराइए मत, मदद भेज रहा हूँ।',locating:'लोकेशन ढूँढ रहा हूँ…',located:'लोकेशन मिल गई। नीचे बटन दबाएँ।',nolocation:'लोकेशन नहीं मिली, फिर भी नीचे बटन दबाएँ।',sosm:'🆘 मदद चाहिए! {n} को आपात स्थिति है। लोकेशन: {u}',wa:'WhatsApp से भेजें',sms:'SMS से भेजें',amb:'एम्बुलेंस 108 कॉल',cancel:'गलती से दबा',name:'बुजुर्ग का नाम',phone:'परिवार का मोबाइल नंबर',db:'Firebase Database लिंक (वैकल्पिक)',medname:'दवा का नाम',add:'दवा जोड़ें',share:'परिवार को लिंक भेजें',needdb:'पहले Firebase लिंक भरें।',sharem:'वय-सखा पर परिवार का अपडेट देखें: ',save:'सेव करें',careh:'👨‍👩‍👧 परिवार का डैशबोर्ड',ev_sos:'SOS मदद माँगी',ev_med_taken:'दवा ली',ev_med_missed:'दवा छूट गई',ev_med_later:'दवा बाद में',ev_water:'पानी पिया',map:'📍 नक्शा'},
+bu:{speak:'कओ',listening:'सुन रओ हों…',hello:'नमस्ते {n} दद्दा! मैं वय-सखा हों। कओ, का मदद करों?',medtime:'{n} दद्दा, दवाई को टैम हो गओ: {m}। दवाई खा लेओ।',taken:'✅ खा लई',waterTime:'तनक पानी पी लेओ।',ok:'भौत बढ़िया!',unk:'समझ में नईं आओ, फिर कओ।',sosw:'घबराओ नईं, मदद भेज रए हैं।'},
+en:{app:'Vay-Sakha',speak:'Speak',meds:'Medicine',water:'Drank water',set:'Settings',back:'Back',listening:'Listening…',hello:'Namaste {n}! I am Vay-Sakha. How can I help?',medtime:'{n}, it is time for your medicine: {m}. Please take it.',taken:'✅ Taken',later:'⏰ Later',waterTime:'Please drink some water.',ok:'Very good!',unk:'I did not understand. Please say it again.',nosr:'Voice recognition is not supported. Use Chrome.',now:'The time is {h}',nomed:'No medicine added.',sosw:'Do not worry, sending help.',locating:'Finding location…',located:'Location found. Tap a button below.',nolocation:'Location not found. Still tap a button below.',sosm:'🆘 Help needed! {n} has an emergency. Location: {u}',wa:'Send on WhatsApp',sms:'Send SMS',amb:'Call ambulance 108',cancel:'Pressed by mistake',name:'Elder name',phone:'Family mobile number',db:'Firebase Database URL (optional)',medname:'Medicine name',add:'Add medicine',share:'Send link to family',needdb:'Enter the Firebase URL first.',sharem:'See the family update on Vay-Sakha: ',save:'Save',careh:'👨‍👩‍👧 Family dashboard',ev_sos:'Asked for SOS help',ev_med_taken:'Medicine taken',ev_med_missed:'Medicine missed',ev_med_later:'Medicine later',ev_water:'Drank water',map:'📍 Map'}};
+const $=s=>document.querySelector(s),F={};let cur=null,tmr,miss;
+let S=Object.assign({lang:'hi',name:'',c1p:'',db:'',meds:[],log:[],fid:Math.random().toString(36).slice(2,10)},JSON.parse(localStorage.vs||'{}'));
+const save=()=>localStorage.vs=JSON.stringify(S);
+const t=(k,v={})=>((T[S.lang]||{})[k]||T.hi[k]||'').replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
+const vl=()=>S.lang=='en'?'en-IN':'hi-IN';
+const ph=p=>{p=p.replace(/\D/g,'');return p.length==10?'91'+p:p};
+function say(x){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(x);u.lang=vl();u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function beep(){try{const a=new AudioContext(),o=a.createOscillator();o.frequency.value=880;o.connect(a.destination);o.start();setTimeout(()=>{o.stop();a.close()},700)}catch(e){}}
+function go(id){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==id));if(id=='meds')rm();if(id=='set')fill()}
+function apply(){document.documentElement.lang=S.lang=='en'?'en':'hi';document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p))}
+function rm(){const l=$('#ml');l.textContent='';const m=[...S.meds].sort((a,b)=>a.time.localeCompare(b.time));if(!m.length)l.textContent=t('nomed');m.forEach(x=>{const d=document.createElement('div');d.className='ev';d.textContent='💊 '+x.time+' — '+x.name;l.append(d)})}
+function collect(){S.lang=$('#f_lang').value;S.name=$('#f_n').value.trim();S.c1p=$('#f_p').value.trim();S.db=$('#f_db').value.trim();save();apply()}
+function fill(){$('#f_lang').value=S.lang;$('#f_n').value=S.name;$('#f_p').value=S.c1p;$('#f_db').value=S.db;const l=$('#sl2');l.textContent='';S.meds.forEach((x,i)=>{const b=document.createElement('button');b.textContent='🗑 '+x.time+' '+x.name;b.onclick=()=>{collect();S.meds.splice(i,1);save();fill()};l.append(b)})}
+function addMed(){collect();const tm=$('#f_t').value,n=$('#f_m').value.trim();if(!tm||!n)return;S.meds.push({time:tm,name:n});save();$('#f_m').value='';fill()}
+function saveSet(){collect();go('home');$('#st').textContent=t('hello',{n:S.name});say(t('hello',{n:S.name}))}
+function share(){collect();if(!S.db)return say(t('needdb'));const u=location.origin+location.pathname+'#care='+S.fid+'&db='+encodeURIComponent(S.db);window.open('https://wa.me/?text='+encodeURIComponent(t('sharem')+u))}
+function push(type,info,x){const e=Object.assign({type,info,time:Date.now()},x||{});S.log=[e,...S.log].slice(0,30);save();if(S.db)fetch(S.db.replace(/\/$/,'')+'/vs/'+S.fid+'.json',{method:'PATCH',body:JSON.stringify({name:S.name,log:S.log,upd:Date.now()})}).catch(()=>{})}
+function listen(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return say(t('nosr'));const r=new R();r.lang=vl();r.onstart=()=>$('#st').textContent='🎤 '+t('listening');r.onresult=e=>cmd(e.results[0][0].transcript);r.onerror=()=>{$('#st').textContent=t('unk');say(t('unk'))};r.start()}
+function lis2(){clearInterval(tmr);listen()}
+function cmd(x){x=x.toLowerCase();$('#st').textContent='“'+x+'”';
+if(cur&&/ले ली|खा ली|खा लई|ले लई|taken|yes|हाँ|हां|ठीक/.test(x))return done(true);
+if(/बचाओ|मदद|एसओएस|sos|help|एम्बुलेंस|ambulance/.test(x))return sos();
+if(/दवा|दवाई|medicine|tablet|गोली/.test(x))return go('meds');
+if(/पानी|water|प्यास/.test(x))return water();
+if(/समय|टाइम|time|बजे/.test(x))return say(t('now',{h:new Date().toLocaleTimeString(vl(),{hour:'2-digit',minute:'2-digit'})}));
+say(t('unk'))}
+function water(){push('water','');say(t('ok'));$('#st').textContent='💧 '+t('ok')}
+function ring(kind,m){cur={kind,m};go('alarm');const q=t(kind=='med'?'medtime':'waterTime',{n:S.name,m:m&&m.name});$('#aq').textContent=(kind=='med'?'💊 ':'💧 ')+q;const lp=()=>{beep();say(q)};lp();clearInterval(tmr);tmr=setInterval(lp,15000);clearTimeout(miss);if(kind=='med')miss=setTimeout(()=>push('med_missed',m.name),300000)}
+function done(ok){clearInterval(tmr);clearTimeout(miss);speechSynthesis.cancel();if(cur){const c=cur;cur=null;if(c.kind=='med'){push(ok?'med_taken':'med_later',c.m.name);if(!ok)setTimeout(()=>ring('med',c.m),600000)}else if(ok)push('water','')}go('home');if(ok)say(t('ok'))}
+function sos(){go('sos');say(t('sosw'));$('#sl').textContent=t('locating');sd(null,1);navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>sd(p.coords),()=>sd(null),{enableHighAccuracy:true,timeout:10000}):sd(null)}
+function sd(c,first){const u=c?'https://maps.google.com/?q='+c.latitude+','+c.longitude:'';const m=encodeURIComponent(t('sosm',{n:S.name,u}));$('#wa').href='https://wa.me/'+ph(S.c1p)+'?text='+m;$('#sms').href='sms:'+S.c1p+'?body='+m;if(first)return;push('sos',u,c?{lat:c.latitude,lng:c.longitude}:{});$('#sl').textContent=t(c?'located':'nolocation')}
+function tick(){const d=new Date(),hm=d.toTimeString().slice(0,5),day=d.toDateString();$('#clk').textContent=hm;
+S.meds.forEach(m=>{const k=day+m.time+m.name;if(m.time==hm&&!F[k]){F[k]=1;ring('med',m)}});
+if([10,12,14,16,18].includes(d.getHours())&&d.getMinutes()==0){const k=day+'w'+d.getHours();if(!F[k]){F[k]=1;ring('water')}}}
+function care(){const q=new URLSearchParams(location.hash.slice(1)),id=q.get('care'),db=q.get('db');go('care');const ic={sos:'🆘',med_taken:'✅',med_missed:'⚠️',med_later:'⏰',water:'💧'};
+const L=async()=>{try{const d=await(await fetch(db.replace(/\/$/,'')+'/vs/'+id+'.json')).json();const c=$('#cl');c.textContent='';const h=document.createElement('div');h.textContent=(d.name||'')+' ';c.append(h);Object.values(d.log||{}).forEach(e=>{const x=document.createElement('div');x.className='ev';x.textContent=(ic[e.type]||'•')+' '+new Date(e.time).toLocaleString(vl())+' — '+t('ev_'+e.type)+' '+(e.type=='sos'?'':e.info||'');if(e.type=='sos'&&/^https:\/\/maps\.google\.com\//.test(e.info||'')){const a=document.createElement('a');a.href=e.info;a.target='_blank';a.rel='noopener';a.textContent=' '+t('map');x.append(a)}c.append(x)})}catch(e){}};L();setInterval(L,10000)}
+$('#mic').onclick=listen;
+document.addEventListener('click',()=>{try{navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}},{once:true});
+apply();tick();setInterval(tick,15000);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+if(location.hash.startsWith('#care='))care();else if(!S.c1p)go('set');else $('#st').textContent=t('hello',{n:S.name});
+</script></body></html>
